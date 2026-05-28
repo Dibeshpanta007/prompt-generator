@@ -32,36 +32,49 @@ app.post('/api/generate-prompt', async (req, res) => {
             }
         });
 
-        // Universal parser check that works with all API array formats
-        const choices = response.data?.choices;
-        
-        if (choices && choices.length > 0) {
-            const message = choices[0].message;
-            const content = message?.content || message?.text;
-            
-            if (content) {
-                return res.json({ engineeredPrompt: content });
-            }
+        // 1. Direct standard OpenAI layout check
+        if (response.data?.choices?.[0]?.message?.content) {
+            return res.json({ engineeredPrompt: response.data.choices[0].message.content });
         }
 
-        // Fallback: If text is buried elsewhere in the object, stringify it so we can see it
-        console.error("API Payload Structure:", JSON.stringify(response.data));
-        res.status(500).json({ error: "Text content not found in the response payload." });
+        // 2. Deep recursive text hunter fallback
+        // This looks through every key in the API payload to extract text string fields directly
+        function searchText(obj) {
+            if (!obj || typeof obj !== 'object') return null;
+            if (obj.content && typeof obj.content === 'string') return obj.content;
+            if (obj.text && typeof obj.text === 'string') return obj.text;
+            
+            for (let key in obj) {
+                if (obj.hasOwnProperty(key)) {
+                    let result = searchText(obj[key]);
+                    if (result) return result;
+                }
+            }
+            return null;
+        }
+
+        const foundText = searchText(response.data);
+
+        if (foundText) {
+            return res.json({ engineeredPrompt: foundText });
+        }
+
+        // 3. Ultimate Safety Fallback: Send the whole response stringified to see the layout
+        console.log("Raw Response Payload Object Data:", response.data);
+        return res.json({ 
+            engineeredPrompt: `Structure Mismatch. Raw Data Received:\n${JSON.stringify(response.data, null, 2)}` 
+        });
 
     } catch (error) {
-        console.error("❌ BACKEND ERROR DETECTED:");
+        console.error("❌ BACKEND ERROR DETECTED:", error.message);
         if (error.response) {
-            console.error("Status Data:", error.response.data);
             return res.status(error.response.status).json({ 
                 error: error.response.data.error?.message || "AI Provider rejected request." 
             });
         } else {
-            console.error("Message:", error.message);
             return res.status(500).json({ error: error.message });
         }
     }
 });
 
 app.listen(PORT, () => console.log(`🚀 Server successfully running on http://localhost:${PORT}`));
-
-
