@@ -8,10 +8,9 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Switch to OpenRouter's API endpoint (They offer 100% free models)
 const API_KEY = process.env.OPENAI_API_KEY; 
 const API_URL = "https://openrouter.ai"; 
-const MODEL_NAME = "meta-llama/llama-3-8b-instruct:free"; // A highly capable, completely free model
+const MODEL_NAME = "meta-llama/llama-3-8b-instruct:free"; 
 
 app.post('/api/generate-prompt', async (req, res) => {
     const userIdea = req.body.idea;
@@ -29,21 +28,32 @@ app.post('/api/generate-prompt', async (req, res) => {
         }, {
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${API_KEY}`
+                'Authorization': `Bearer ${API_KEY}`,
+                // ⚠️ OpenRouter requires these two headers to identify free traffic
+                'HTTP-Referer': 'http://localhost:3000', 
+                'X-Title': 'Prompt Generator App'
             }
         });
 
-        if (response.data?.choices?.[0]?.message?.content) {
-            return res.json({ engineeredPrompt: response.data.choices[0].message.content });
+        // Safe extraction checking multiple response styles
+        const choices = response.data?.choices;
+        if (choices && choices.length > 0) {
+            const content = choices[0]?.message?.content;
+            if (content) {
+                return res.json({ engineeredPrompt: content });
+            }
         }
 
-        res.status(500).json({ error: "Could not read text content from the AI provider response." });
+        // Print raw body response to Render dashboard if it still fails
+        console.log("Raw Response Data from OpenRouter:", JSON.stringify(response.data));
+        res.status(500).json({ error: `Could not parse AI text. Server log output: ${JSON.stringify(response.data)}` });
 
     } catch (error) {
         console.error("❌ BACKEND ERROR:", error.message);
         if (error.response) {
+            console.error("Error Response Body Data:", error.response.data);
             return res.status(error.response.status).json({ 
-                error: typeof error.response.data === 'string' ? "Provider returned an HTML page. Check key status." : (error.response.data.error?.message || "AI API rejection.")
+                error: `API Error: ${JSON.stringify(error.response.data)}`
             });
         } else {
             return res.status(500).json({ error: error.message });
@@ -52,4 +62,3 @@ app.post('/api/generate-prompt', async (req, res) => {
 });
 
 app.listen(PORT, () => console.log(`🚀 Server successfully running on http://localhost:${PORT}`));
-
