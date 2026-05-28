@@ -6,80 +6,112 @@
     <title>AI Prompt Architect</title>
     <style>
        
-        body { 
-            font-family: 'Segoe UI', system-ui, sans-serif; 
-            background: #f4f7f6; 
-            margin: 0; 
-            padding: 40px 20px; 
-            display: flex; 
-            justify-content: center; 
-        }
-        .container { 
-            background: white; 
-            padding: 30px; 
-            border-radius: 12px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
-            width: 100%; 
-            max-width: 600px; 
-        }
-        h1 { 
-            color: #1e293b; 
-            margin-top: 0; 
-            font-size: 28px;
-        }
-        p {
-            color: #64748b;
-            font-size: 15px;
-            line-height: 1.5;
-        }
-        textarea { 
-            width: 100%; 
-            height: 120px; 
-            padding: 12px; 
-            border: 1px solid #cbd5e1; 
-            border-radius: 6px; 
-            resize: none; 
-            font-size: 16px; 
-            box-sizing: border-box; 
-            margin-top: 10px;
-        }
-        textarea:focus {
-            outline: 2px solid #2563eb;
-            border-color: transparent;
-        }
-        button { 
-            background: #2563eb; 
-            color: white; 
-            border: none; 
-            padding: 14px 20px; 
-            font-size: 16px; 
-            font-weight: 600;
-            border-radius: 6px; 
-            cursor: pointer; 
-            margin-top: 15px; 
-            width: 100%; 
-            transition: background 0.2s; 
-        }
-        button:hover { 
-            background: #1d4ed8; 
-        }
-        h3 {
-            color: #334155;
-            margin-top: 30px;
-            margin-bottom: 10px;
-        }
-        .output-box { 
-            background: #f8fafc; 
-            border: 1px dashed #cbd5e1; 
-            padding: 15px; 
-            border-radius: 6px; 
-            min-height: 100px; 
-            white-space: pre-wrap; 
-            font-family: monospace; 
-            color: #334155;
-            font-size: 14px;
-            line-height: 1.6;
-        }
+      body { 
+    font-family: 'Inter', system-ui, -apple-system, sans-serif; 
+    background: #0f172a; /* Deep slate dark background */
+    color: #f1f5f9;
+    margin: 0; 
+    padding: 40px 20px; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+
+.container { 
+    background: #1e293b; /* Darker card background */
+    padding: 40px; 
+    border-radius: 16px; 
+    border: 1px solid #334155;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3); 
+    width: 100%; 
+    max-width: 650px; 
+}
+
+h1 { 
+    color: #ffffff; 
+    margin-top: 0; 
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    background: linear-gradient(to right, #38bdf8, #818cf8); /* Vibrant gradient heading */
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+p {
+    color: #94a3b8;
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 25px;
+}
+
+textarea { 
+    width: 100%; 
+    height: 140px; 
+    padding: 16px; 
+    background: #0f172a;
+    color: #ffffff;
+    border: 1px solid #475569; 
+    border-radius: 8px; 
+    resize: none; 
+    font-size: 16px; 
+    box-sizing: border-box; 
+    margin-top: 10px;
+    transition: all 0.2s ease;
+}
+
+textarea:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+button { 
+    background: #4f46e5; /* Royal indigo violet */
+    color: white; 
+    border: none; 
+    padding: 16px 20px; 
+    font-size: 16px; 
+    font-weight: 600;
+    border-radius: 8px; 
+    cursor: pointer; 
+    margin-top: 20px; 
+    width: 100%; 
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);
+}
+
+button:hover { 
+    background: #4338ca; 
+    transform: translateY(-1px);
+    box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+h3 {
+    color: #cbd5e1;
+    margin-top: 35px;
+    margin-bottom: 12px;
+    font-size: 18px;
+}
+
+.output-box { 
+    background: #0f172a; 
+    border: 1px solid #334155; 
+    padding: 20px; 
+    border-radius: 8px; 
+    min-height: 120px; 
+    white-space: pre-wrap; 
+    font-family: 'Fira Code', 'Courier New', monospace; 
+    color: #e2e8f0;
+    font-size: 14px;
+    line-height: 1.7;
+}
     </style>
 </head>
 <body>
