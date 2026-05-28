@@ -32,14 +32,21 @@ app.post('/api/generate-prompt', async (req, res) => {
             }
         });
 
-        // Safe extraction layer to prevent "undefined reading 0" crashes
-        if (response.data && response.data.choices && response.data.choices[0]) {
-            const engineeredPrompt = response.data.choices[0].message.content;
-            res.json({ engineeredPrompt });
-        } else {
-            console.error("Unexpected API structure:", response.data);
-            res.status(500).json({ error: "AI returned an empty response. Check server logs." });
+        // Universal parser check that works with all API array formats
+        const choices = response.data?.choices;
+        
+        if (choices && choices.length > 0) {
+            const message = choices[0].message;
+            const content = message?.content || message?.text;
+            
+            if (content) {
+                return res.json({ engineeredPrompt: content });
+            }
         }
+
+        // Fallback: If text is buried elsewhere in the object, stringify it so we can see it
+        console.error("API Payload Structure:", JSON.stringify(response.data));
+        res.status(500).json({ error: "Text content not found in the response payload." });
 
     } catch (error) {
         console.error("❌ BACKEND ERROR DETECTED:");
@@ -56,4 +63,5 @@ app.post('/api/generate-prompt', async (req, res) => {
 });
 
 app.listen(PORT, () => console.log(`🚀 Server successfully running on http://localhost:${PORT}`));
+
 
