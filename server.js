@@ -8,9 +8,10 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Switch to OpenRouter's API endpoint (They offer 100% free models)
 const API_KEY = process.env.OPENAI_API_KEY; 
-const API_URL = "https://openai.com"; 
-const MODEL_NAME = "gpt-4o-mini"; 
+const API_URL = "https://openrouter.ai"; 
+const MODEL_NAME = "meta-llama/llama-3-8b-instruct:free"; // A highly capable, completely free model
 
 app.post('/api/generate-prompt', async (req, res) => {
     const userIdea = req.body.idea;
@@ -32,44 +33,17 @@ app.post('/api/generate-prompt', async (req, res) => {
             }
         });
 
-        // 1. Direct standard OpenAI layout check
         if (response.data?.choices?.[0]?.message?.content) {
             return res.json({ engineeredPrompt: response.data.choices[0].message.content });
         }
 
-        // 2. Deep recursive text hunter fallback
-        // This looks through every key in the API payload to extract text string fields directly
-        function searchText(obj) {
-            if (!obj || typeof obj !== 'object') return null;
-            if (obj.content && typeof obj.content === 'string') return obj.content;
-            if (obj.text && typeof obj.text === 'string') return obj.text;
-            
-            for (let key in obj) {
-                if (obj.hasOwnProperty(key)) {
-                    let result = searchText(obj[key]);
-                    if (result) return result;
-                }
-            }
-            return null;
-        }
-
-        const foundText = searchText(response.data);
-
-        if (foundText) {
-            return res.json({ engineeredPrompt: foundText });
-        }
-
-        // 3. Ultimate Safety Fallback: Send the whole response stringified to see the layout
-        console.log("Raw Response Payload Object Data:", response.data);
-        return res.json({ 
-            engineeredPrompt: `Structure Mismatch. Raw Data Received:\n${JSON.stringify(response.data, null, 2)}` 
-        });
+        res.status(500).json({ error: "Could not read text content from the AI provider response." });
 
     } catch (error) {
-        console.error("❌ BACKEND ERROR DETECTED:", error.message);
+        console.error("❌ BACKEND ERROR:", error.message);
         if (error.response) {
             return res.status(error.response.status).json({ 
-                error: error.response.data.error?.message || "AI Provider rejected request." 
+                error: typeof error.response.data === 'string' ? "Provider returned an HTML page. Check key status." : (error.response.data.error?.message || "AI API rejection.")
             });
         } else {
             return res.status(500).json({ error: error.message });
@@ -78,3 +52,4 @@ app.post('/api/generate-prompt', async (req, res) => {
 });
 
 app.listen(PORT, () => console.log(`🚀 Server successfully running on http://localhost:${PORT}`));
+
