@@ -36,10 +36,10 @@ app.post('/api/generate-prompt', async (req, res) => {
         }
 
     } catch (error) {
-        console.error("❌ SDK BACKEND ERROR:", error.message);
+        console.error(" SDK BACKEND ERROR:", error.message);
 
         return res.status(500).json({ error: `Groq SDK Error: ${error.message}` });
     }
 });
 
-app.listen(PORT, () => console.log(`🚀 
+app.listen(PORT, () => console.log(` 
