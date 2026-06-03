@@ -42,4 +42,4 @@ app.post('/api/generate-prompt', async (req, res) => {
     }
 });
 
-app.listen(PORT, () => console.log(`🚀 Server successfully running on http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`🚀 
