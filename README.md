@@ -11,5 +11,5 @@ Users input a raw, messy idea (e.g., "how to climb mount everest"). The applicat
 
 Building this project taught me how to securely manage API gateways and translate user intent into structured model behavior
 
-🔗 Try it live: https://lnkd.in/gN8d7DuN
+🔗 Try it live: https://ai-prompt-generator-q4u9.onrender.com/
 (Note: Give the free instance up to 45 seconds to spin up on first load!)
