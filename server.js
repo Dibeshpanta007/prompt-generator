@@ -1,45 +1,46 @@
 const express = require('express');
-const path = require('path');
-const Groq = require('groq-sdk'); 
+const cors = require('cors');
+require('dotenv').config();
+
 const app = express();
 
-const PORT = process.env.PORT || 3000;
-
+// Middleware
+app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
 
-const groq = new Groq({
-    apiKey: process.env.GROQ_API_KEY
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
 });
 
-app.post('/api/generate-prompt', async (req, res) => {
-    const userIdea = req.body.idea;
+app.get('/', (req, res) => {
+  res.send('AI Prompt Architect API is running.');
+});
 
-    const systemInstruction = `You are an expert Prompt Engineer. Your job is to take a simple user idea and turn it into a high-quality, structured, professional prompt that the user can copy and paste into tools like ChatGPT or Claude. Do not include introductory text, conversational filler, or wrap the response in markdown code blocks. Output ONLY the finalized prompt text. Use clear structural headings like [Role], [Context], [Task], and [Constraints].`;
-
-    try {
-        const chatCompletion = await groq.chat.completions.create({
-            messages: [
-                { role: "system", content: systemInstruction },
-                { role: "user", content: `Transform this basic idea into an engineered prompt: ${userIdea}` }
-            ],
-            model: "llama-3.3-70b-versatile", 
-            temperature: 0.7
-        });
-
-        const content = chatCompletion.choices[0]?.message?.content;
-
-        if (content) {
-            return res.json({ engineeredPrompt: content });
-        } else {
-            return res.status(500).json({ error: "Received an empty completion response from Groq." });
-        }
-
-    } catch (error) {
-        console.error(" SDK BACKEND ERROR:", error.message);
-
-        return res.status(500).json({ error: `Groq SDK Error: ${error.message}` });
+app.post('/api/generate', async (req, res) => {
+  try {
+    const { prompt } = req.body;
+    if (!prompt) {
+      return res.status(400).json({ error: 'Prompt input is required.' });
     }
+
+    const apiKey = process.env.GEMINI_API_KEY || process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      return res.status(500).json({ 
+        error: 'API Key missing. Please configure environment variables in Render.' 
+      });
+    }
+
+    return res.json({ result: `Architected Prompt: ${prompt}` });
+
+  } catch (error) {
+    console.error('Generation Error:', error);
+    res.status(500).json({ error: 'Failed to generate prompt.' });
+  }
 });
 
-app.listen(PORT, () => console.log(` 
+const PORT = process.env.PORT || 3000;
+const HOST = '0.0.0.0';
+
+app.listen(PORT, HOST, () => {
+  console.log(`Server listening on http://${HOST}:${PORT}`);
+});
